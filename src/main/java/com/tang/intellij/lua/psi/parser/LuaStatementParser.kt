@@ -35,12 +35,24 @@ object LuaStatementParser : GeneratedParserUtilBase() {
             RETURN -> parseReturnStatement(b, l)
             LOCAL -> parseLocalDef(b, l)
             FOR -> parseForStatement(b, l)
+            IN -> parseInStatement(b, l)
             FUNCTION -> parseFunctionStatement(b, l)
             SEMI -> parseEmptyStatement(b)
             else -> parseOtherStatement(b, l)
         }
     }
+    private fun parseInStatement(b: PsiBuilder, l: Int): PsiBuilder.Marker? {
+        if (b.tokenType == IN) {
+            val m = b.mark()
+            expectError(b, IN) { "'in'" }
 
+            expectExprList(b, l + 1)
+
+            doneStat(b, m, VAR_LIST)
+            return m
+        }
+        return null
+    }
     private fun parseDoStatement(b: PsiBuilder, l: Int): PsiBuilder.Marker {
         val m = b.mark()
         b.advanceLexer() // do
@@ -383,7 +395,16 @@ object LuaStatementParser : GeneratedParserUtilBase() {
                         c = c.precede()
                         c.done(VAR_LIST)
                         expectError(b, ASSIGN) { "'='" }
-                    } else if (b.tokenType == ASSIGN) {
+                    } else if (b.tokenType == ASSIGN
+                        || b.tokenType == ASSIGN_PLUS
+                        || b.tokenType == ASSIGN_MINUS
+                        || b.tokenType == ASSIGN_MULT
+                        || b.tokenType == ASSIGN_DIV
+                        || b.tokenType == ASSIGN_BIT_LEFT
+                        || b.tokenType == ASSIGN_BIT_RIGHT
+                        || b.tokenType == ASSIGN_BIT_XOR
+                        || b.tokenType == ASSIGN_BIT_OR
+                        || b.tokenType == ASSIGN_BIT_AND ) {
                         c = c.precede()
                         c.done(VAR_LIST)
 

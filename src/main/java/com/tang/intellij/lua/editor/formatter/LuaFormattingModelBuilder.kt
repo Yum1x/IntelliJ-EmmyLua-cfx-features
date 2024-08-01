@@ -72,7 +72,16 @@ class LuaFormattingModelBuilder : FormattingModelBuilder {
                 .between(FUNCTION, NAME_DEF).spaces(1) //function<SPACE>name()
                 .around(BINARY_OP).spaces(if (luaCodeStyleSettings.SPACE_AROUND_BINARY_OPERATOR) 1 else 0)
                 .around(UNARY_OP).none()
-                .around(ASSIGN).lineBreakOrForceSpace(false, commonSettings.SPACE_AROUND_ASSIGNMENT_OPERATORS) // = 号两头不能换行
+                .around(ASSIGN).lineBreakOrForceSpace(false, commonSettings.SPACE_AROUND_ASSIGNMENT_OPERATORS)
+                .around(ASSIGN_BIT_AND).lineBreakOrForceSpace(false, commonSettings.SPACE_AROUND_ASSIGNMENT_OPERATORS)
+                .around(ASSIGN_BIT_LEFT).lineBreakOrForceSpace(false, commonSettings.SPACE_AROUND_ASSIGNMENT_OPERATORS)
+                .around(ASSIGN_BIT_OR).lineBreakOrForceSpace(false, commonSettings.SPACE_AROUND_ASSIGNMENT_OPERATORS)
+                .around(ASSIGN_BIT_RIGHT).lineBreakOrForceSpace(false, commonSettings.SPACE_AROUND_ASSIGNMENT_OPERATORS)
+                .around(ASSIGN_BIT_XOR).lineBreakOrForceSpace(false, commonSettings.SPACE_AROUND_ASSIGNMENT_OPERATORS)
+                .around(ASSIGN_DIV).lineBreakOrForceSpace(false, commonSettings.SPACE_AROUND_ASSIGNMENT_OPERATORS)
+                .around(ASSIGN_MINUS).lineBreakOrForceSpace(false, commonSettings.SPACE_AROUND_ASSIGNMENT_OPERATORS)
+                .around(ASSIGN_MULT).lineBreakOrForceSpace(false, commonSettings.SPACE_AROUND_ASSIGNMENT_OPERATORS)
+                .around(ASSIGN_PLUS).lineBreakOrForceSpace(false, commonSettings.SPACE_AROUND_ASSIGNMENT_OPERATORS)
                 .around(LuaParserDefinition.KEYWORD_TOKENS).spaces(1)
                 .around(LBRACK).none() // [
                 .before(RBRACK).none() // ]

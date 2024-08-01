@@ -95,6 +95,7 @@ DOC_COMMENT=----*[^\r\n]*(\r?\n{LINE_WS}*----*[^\r\n]*)*
 //Strings
 DOUBLE_QUOTED_STRING=\"([^\\\"]|\\\S|\\[\r\n])*\"?  //\"([^\\\"\r\n]|\\[^\r\n])*\"?
 SINGLE_QUOTED_STRING='([^\\\']|\\\S|\\[\r\n])*'?    //'([^\\'\r\n]|\\[^\r\n])*'?
+JOAAT_QUOTED_STRING=\`([^\\\`]|\\\S|\\[\r\n])*`?    //'([^\\'\r\n]|\\[^\r\n])*'?
 //[[]]
 LONG_STRING=\[=*\[[\s\S]*\]=*\]
 
@@ -104,7 +105,7 @@ LONG_STRING=\[=*\[[\s\S]*\]=*\]
 %state xBLOCK_STRING
 %state xCOMMENT
 %state xBLOCK_COMMENT
-
+%state xJOAAT_QUOTED_STRING
 %%
 <YYINITIAL> {
   {WHITE_SPACE}               { return TokenType.WHITE_SPACE; }
@@ -188,6 +189,17 @@ LONG_STRING=\[=*\[[\s\S]*\]=*\]
 
   "\""                        { yybegin(xDOUBLE_QUOTED_STRING); yypushback(yylength()); }
   "'"                         { yybegin(xSINGLE_QUOTED_STRING); yypushback(yylength()); }
+  "`"                         { yybegin(xJOAAT_QUOTED_STRING); yypushback(yylength()); }
+  "?" 					              { return SAFE_NAV; }
+  "+="                        { return ASSIGN_PLUS; }
+  "-="                        { return ASSIGN_MINUS; }
+  "*="                        { return ASSIGN_MULT; }
+  "/="                        { return ASSIGN_DIV; }
+  "<<=" 					            { return ASSIGN_BIT_LEFT; }
+  ">>=" 					            { return ASSIGN_BIT_RIGHT; }
+  "&=" 					              { return ASSIGN_BIT_AND; }
+  "|=" 					              { return ASSIGN_BIT_OR; }
+  "^=" 					              { return ASSIGN_BIT_XOR; }
 
   {ID}                        { return ID; }
   {NUMBER}                    { return NUMBER; }
@@ -210,4 +222,7 @@ LONG_STRING=\[=*\[[\s\S]*\]=*\]
 
 <xSINGLE_QUOTED_STRING> {
     {SINGLE_QUOTED_STRING}    { yybegin(YYINITIAL); return STRING; }
+}
+<xJOAAT_QUOTED_STRING>{
+	  {JOAAT_QUOTED_STRING}       { yybegin(YYINITIAL); return NUMBER; }
 }

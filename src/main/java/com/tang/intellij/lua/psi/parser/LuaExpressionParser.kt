@@ -164,6 +164,24 @@ object LuaExpressionParser {
 
     private fun parseIndexExpr(prefix: PsiBuilder.Marker, b: PsiBuilder, l: Int): PsiBuilder.Marker? {
         when (b.tokenType) {
+            SAFE_NAV -> {
+                // ALLOW ?. and ?[]
+                b.advanceLexer() // ?
+                return if (b.tokenType == DOT) {
+                    b.advanceLexer() // .
+                    expectError(b, ID) { "ID" }
+                    val m = prefix.precede()
+                    m.done(INDEX_EXPR)
+                    m
+                } else {
+                    expectError(b, LBRACK) { "'['" }
+                    expectExpr(b, l + 1) // expr
+                    expectError(b, RBRACK) { "']'" }
+                    val m = prefix.precede()
+                    m.done(INDEX_EXPR)
+                    m
+                }
+            }
             DOT, COLON -> { // left indexExpr ::= '[' expr ']' | '.' ID | ':' ID
                 b.advanceLexer() // . or :
                 expectError(b, ID) { "ID" }
@@ -300,6 +318,15 @@ object LuaExpressionParser {
 
     private fun parseTableField(b: PsiBuilder, l: Int): PsiBuilder.Marker? {
         when (b.tokenType) {
+            DOT -> {
+                // Parse .ID = expr
+                val m = b.mark()
+                b.advanceLexer() // .
+                expectError(b, ID) { "ID" }
+                m.done(TABLE_FIELD)
+                m.setCustomEdgeTokenBinders(MY_LEFT_COMMENT_BINDER, MY_RIGHT_COMMENT_BINDER)
+                return m
+            }
             LBRACK -> { // '[' expr ']' '=' expr
                 val m = b.mark()
                 b.advanceLexer()
